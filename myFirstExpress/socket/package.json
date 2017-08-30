@@ -1,0 +1,22 @@
+{
+  "name": "socket.io_test",
+  "version": "0.0.1",
+  "description": "socket.io test app",
+  "main": "si_test.js",
+  "scripts": {
+    "test": "node si_test.js"
+  },
+  "keywords": [
+    "socket.io"
+  ],
+  "author": "조진규",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^2.0.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "socket.to test app"
+  }
+}

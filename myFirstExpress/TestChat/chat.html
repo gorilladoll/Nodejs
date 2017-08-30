@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="">
+
+    <script>
+        var roomlist = [];
+        var serverUrl = 'http://localhost:3000';
+        var socket = io.connect(serverUrl, {'forceNew' : true, reconnection:false});
+        var clientId;
+        var nickname;
+
+        $(function(){
+            $('#room_make').click(function(){
+               var data = {
+                   "roomname" : $("#roomname").val(),
+                   "nickname" : $("#nickname").val()
+               };
+
+               socket.emit("roommake",data);
+               $("#roomname").val('');
+               nickname = $("#nickname").val();
+            });
+
+            function getRoomList(){
+                $.ajax({
+                    type:"get",
+                    dataType:"json",
+                    url:"/roomlist",
+                    success:function(data){
+                        var rooms = data.roomdata;
+                        roomlist = [];
+                        for(var room in rooms){
+                            if(!rooms[room].sockets.hasOwnProperty(room)){
+                                roomlist.push({
+                                    "name":room,
+                                    count : rooms[room].length,
+                                    myroom : false
+                                });
+                            }
+                        }
+                        viewRoomList(roomlist);
+                    },
+                    error: function(res){
+                    }
+                });
+            }
+
+            function viewRoomList(data){
+                //delete existed list
+                $("#roomlist li").remove();
+                $("#room").show();
+                //show room list
+
+                for(var i=0; i < data.length; i++){
+                    if(data[i].myroom){
+                        $("#room").hide();
+                        $("#roommake").hide();
+                        $("#chatroom").show();
+                        $("#chatroom legend").html(
+                            "roomname : <span id = 'roomname''>"+data[i].name+
+                            "</span> || Chatters : <span>" + data[i].count +
+                            "</span> || nickname: <span id='nickname>" + nickname + "</span>"
+                        );
+                    } else {
+                        $("#roomlist").append(
+                            "<li '> RoomName: " + data[i].name +
+                            ", Chatters: " + data[i].count +
+                            ", nickname: <input type='text'>"+
+                            "<input type='button' value='Enter'>" +
+                            "data-roomname='" + data[i].name + "'><li>" 
+                        );
+                    }
+                }
+                if(data.length < 1){
+                    $("#roomlist").append("<li>No Exist created room</li>");
+                } else {
+                    $("#roomlist li input[type=button]").click(function(){
+                        var data = {
+                            "roomname" : $(this).data("roomname"),
+                            "nickname" : $("#roomlist li input[type=text]").val()
+                        };
+                        socket.emit('roommake',data);
+                        nickname = $("#roomlist li input[type=text]").val();
+                    });
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Chatting</h1>
+    <fieldset id="roommake">
+        <legend>Make Room</legend>
+        Room Name : <input type="text" value="" id="roomname"><br/>
+        Nick name : <input type="text" value="" id="nickname"><br/>
+        <input type="button" value="MakeRoom" id="room_make">
+    </fieldset>
+</body>
+</html>

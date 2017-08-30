@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
+    <script>
+        var socket;
+
+        window.onload = function(){
+            socket = io.connect("http://localhost:3000");
+            socket.on("msg_by_server",function(data){
+                var str = document.getElementById('naiyo_area').innerHTML;
+                document.getElementById('naiyo_area').innerHTML = str+data;
+            });
+        }
+
+        var sendMessage = function(){
+            socket.emit('msg',document.getElementById('naiyo').value);
+        }
+    </script>
+</head>
+<body>
+    <div id="naiyo_area">
+        <input type="text" id="naiyo">
+        <button onclick="sendMessage();">MessageSend</button>
+    </div>
+</body>
+</html>
